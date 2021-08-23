@@ -10,7 +10,6 @@ import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,7 +41,7 @@ public class Main {
 
                 getAnchorHrefAndInsertIntoDatabase(connection, htmlDom);
 
-                storeIntoDatabaseIfItIsNewsPage(htmlDom);
+                storeIntoDatabaseIfItIsNewsPage(connection, htmlDom, url);
             }
         }
     }
@@ -138,16 +137,22 @@ public class Main {
                 .map(aTag -> aTag.attr("href"));
     }
 
-    private static void storeIntoDatabaseIfItIsNewsPage(Document htmlDom) {
+    private static void insertNewsIntoDatabase(Connection connection, News news) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement("insert into News(url, title, content) values (?, ?, ?);")) {
+            statement.setString(1, news.getUrl());
+            statement.setString(2, news.getTitle());
+            statement.setString(3, news.getContent());
+            statement.executeUpdate();
+        }
+    }
+
+    private static void storeIntoDatabaseIfItIsNewsPage(Connection connection, Document htmlDom, String url) throws SQLException {
         ArrayList<Element> articleTags = htmlDom.select("article");
         if (!articleTags.isEmpty()) {
             for (Element articleTag : articleTags) {
-                Elements h1Tags = articleTag.select("h1");
-                if (!h1Tags.isEmpty()) {
-                    for (Element h1Tag : h1Tags) {
-                        System.out.println(h1Tag.text());
-                    }
-                }
+                String title = articleTag.selectFirst("h1").text();
+                String content = articleTag.select("p").stream().map(Element::text).collect(Collectors.joining("\n"));
+                insertNewsIntoDatabase(connection, new News(url, title, content));
             }
         }
     }
