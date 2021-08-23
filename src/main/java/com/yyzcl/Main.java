@@ -20,10 +20,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -37,34 +34,46 @@ public class Main {
         String jdbcUrl = "jdbc:h2:file:" + new File(projectDir, "tmp/news-db").getAbsolutePath();
         Connection connection = DriverManager.getConnection(jdbcUrl, USER_NAME, PASSWORD);
 
+        String url;
 
-        while (true) {
-            LinkedList<String> urlPool = new LinkedList<>(getUrlsFromDatabase(connection, 0));
-            Set<String> processedUrls = new HashSet<>(getUrlsFromDatabase(connection, 1));
-
-            if (urlPool.isEmpty()) {
-                break;
-            }
-
-            String url = urlPool.poll();
-
-            if (processedUrls.contains(url)) {
-                continue;
-            }
-
+        while ((url = getNextUrlThenSwitchStatus(connection)) != null) {
             if (isValidUrl(url)) {
                 Document htmlDom = getHtmlDom(url);
 
                 getAnchorHrefAndInsertIntoDatabase(connection, htmlDom);
 
                 storeIntoDatabaseIfItIsNewsPage(htmlDom);
-
-                updateUrlStatusIntoDatabase(connection, url, 1);
             }
         }
     }
 
+    private static String getNextUrlThenSwitchStatus(Connection connection) throws SQLException {
+        String url = getNextUrl(connection);
+        if (url != null) {
+            updateUrlStatusIntoDatabase(connection, url);
+        }
+        return url;
+    }
+
+    private static String getNextUrl(Connection connection) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement("select url from Links where status = 0 limit 1;"); ResultSet resultSet = statement.executeQuery()) {
+            if (resultSet.next()) {
+                return resultSet.getString(1);
+            }
+        }
+        return null;
+    }
+
     private static void saveUrlIntoDatabase(Connection connection, String url) throws SQLException {
+        if (!isValidUrl(url)) {
+            return;
+        }
+        if (url.startsWith("//")) {
+            url = "https:" + url;
+        }
+        if (url.toLowerCase().startsWith("javascript")) {
+            return;
+        }
         if (isExistInDatabase(connection, url)) {
             return;
         }
@@ -74,10 +83,9 @@ public class Main {
         }
     }
 
-    private static void updateUrlStatusIntoDatabase(Connection connection, String url, int status) throws SQLException {
-        try (PreparedStatement statement = connection.prepareStatement("update LINKS set status = ? where url = ?;")) {
-            statement.setInt(1, status);
-            statement.setString(2, url);
+    private static void updateUrlStatusIntoDatabase(Connection connection, String url) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement("update LINKS set status = 1 where url = ?;")) {
+            statement.setString(1, url);
             statement.executeUpdate();
         }
     }
@@ -87,15 +95,8 @@ public class Main {
     }
 
     private static List<String> getUrlsFromDatabase(Connection connection, String url) throws SQLException {
-        try (PreparedStatement statement = connection.prepareStatement("select id, url, status from Links where url = ?;");) {
+        try (PreparedStatement statement = connection.prepareStatement("select id, url, status from Links where url = ?;")) {
             statement.setString(1, url);
-            return getUrlsFromDatabase(statement);
-        }
-    }
-
-    private static List<String> getUrlsFromDatabase(Connection connection, int status) throws SQLException {
-        try (PreparedStatement statement = connection.prepareStatement("select id, url, status from Links where status = ?;");) {
-            statement.setInt(1, status);
             return getUrlsFromDatabase(statement);
         }
     }
@@ -123,7 +124,7 @@ public class Main {
 
 
     private static void getAnchorHrefAndInsertIntoDatabase(Connection connection, Document htmlDom) {
-        getAnchorHrefs(htmlDom).filter(Main::isValidUrl).forEach(href -> {
+        getAnchorHrefs(htmlDom).forEach(href -> {
             try {
                 saveUrlIntoDatabase(connection, href);
             } catch (SQLException e) {
@@ -152,9 +153,6 @@ public class Main {
     }
 
     private static Document getHtmlDom(String url) throws IOException {
-        if (url.startsWith("//")) {
-            url = "https:" + url;
-        }
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet(url);
         httpGet.addHeader("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1 Edg/92.0.4515.159");
