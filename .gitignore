@@ -45,3 +45,5 @@ buildNumber.properties
 *.iml
 out
 gen
+
+tmp/
