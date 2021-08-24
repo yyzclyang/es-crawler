@@ -36,6 +36,7 @@ public class Main {
         String url;
 
         while ((url = getNextUrlThenSwitchStatus(connection)) != null) {
+            System.out.println(url);
             if (isValidUrl(url)) {
                 Document htmlDom = getHtmlDom(url);
 
@@ -153,6 +154,7 @@ public class Main {
                 String title = articleTag.selectFirst("h1").text();
                 String content = articleTag.select("p").stream().map(Element::text).collect(Collectors.joining("\n"));
                 insertNewsIntoDatabase(connection, new News(url, title, content));
+                System.out.println(title);
             }
         }
     }
@@ -170,6 +172,6 @@ public class Main {
     }
 
     private static boolean isValidUrl(String url) {
-        return url.contains("news.sina.cn");
+        return url.contains("news.sina.cn") && !url.contains("passport.sina.cn");
     }
 }
