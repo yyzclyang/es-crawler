@@ -84,7 +84,7 @@ public class Main {
     }
 
     private static void updateUrlStatusIntoDatabase(Connection connection, String url) throws SQLException {
-        try (PreparedStatement statement = connection.prepareStatement("update LINKS set status = 1 where url = ?;")) {
+        try (PreparedStatement statement = connection.prepareStatement("update LINKS set status = 1, updated_at = now() where url = ?;")) {
             statement.setString(1, url);
             statement.executeUpdate();
         }
