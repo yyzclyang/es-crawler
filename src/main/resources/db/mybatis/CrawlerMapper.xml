@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yyzcl.CrawlerMapper">
+  <select id="getNextUrl" resultType="String">
+    select url
+    from Links
+    where status = 0
+    limit 1;
+  </select>
+  <update
+      id="switchLinkStatus"
+      parameterType="String"
+      flushCache="true"
+      statementType="PREPARED"
+      timeout="20">
+    update LINKS
+    set status     = 1,
+        updated_at = now()
+    where url = #{url};
+  </update>
+  <select id="countUrl" parameterType="String" resultType="int">
+    select count(url)
+    from Links
+    where url = #{url}
+  </select>
+  <insert id="insertLink" parameterType="com.yyzcl.Link">
+    insert into Links(url)
+    values (#{url});
+  </insert>
+  <insert id="insertNews" parameterType="com.yyzcl.News">
+    insert into News(url, title, content)
+    values (#{url}, #{title}, #{content});
+  </insert>
+</mapper>

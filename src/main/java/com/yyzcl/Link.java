@@ -7,6 +7,10 @@ public class Link {
     public String url;
     public int status;
 
+    public Link(String url) {
+        this.url = url;
+    }
+
     public Link(long id, String url, int status) {
         this.id = id;
         this.url = url;

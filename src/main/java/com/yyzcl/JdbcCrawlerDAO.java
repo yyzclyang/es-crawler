@@ -28,6 +28,7 @@ public class JdbcCrawlerDAO implements CrawlerDAO {
         }
     }
 
+    @Override
     public String getNextUrlThenSwitchStatus() throws SQLException {
         String url = getNextUrl();
         if (url != null) {
@@ -36,7 +37,7 @@ public class JdbcCrawlerDAO implements CrawlerDAO {
         return url;
     }
 
-    public String getNextUrl() throws SQLException {
+    private String getNextUrl() throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement("select url from Links where status = 0 limit 1;"); ResultSet resultSet = statement.executeQuery()) {
             if (resultSet.next()) {
                 return resultSet.getString(1);
@@ -45,17 +46,18 @@ public class JdbcCrawlerDAO implements CrawlerDAO {
         return null;
     }
 
-    public void updateUrlStatusIntoDatabase(String url) throws SQLException {
+    private void updateUrlStatusIntoDatabase(String url) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement("update LINKS set status = 1, updated_at = now() where url = ?;")) {
             statement.setString(1, url);
             statement.executeUpdate();
         }
     }
 
-    public boolean isExistInDatabase(String url) throws SQLException {
+    private boolean isExistInDatabase(String url) throws SQLException {
         return !getUrlsFromDatabase(url).isEmpty();
     }
 
+    @Override
     public void saveUrlIntoDatabase(String url) throws SQLException {
         if (!isValidUrl(url)) {
             return;
@@ -75,21 +77,21 @@ public class JdbcCrawlerDAO implements CrawlerDAO {
         }
     }
 
-    public List<String> getUrlsFromDatabase(String url) throws SQLException {
+    private List<String> getUrlsFromDatabase(String url) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement("select id, url, status from Links where url = ?;")) {
             statement.setString(1, url);
             return getUrlsFromDatabase(statement);
         }
     }
 
-    public List<String> getUrlsFromDatabase(PreparedStatement statement) throws SQLException {
+    private List<String> getUrlsFromDatabase(PreparedStatement statement) throws SQLException {
         return getLinksFromDatabase(statement)
                 .stream()
                 .map(link -> link.url)
                 .collect(Collectors.toList());
     }
 
-    public List<Link> getLinksFromDatabase(PreparedStatement statement) throws SQLException {
+    private List<Link> getLinksFromDatabase(PreparedStatement statement) throws SQLException {
         List<Link> links = new ArrayList<>();
         try (ResultSet resultSet = statement.executeQuery()) {
             while (resultSet.next()) {
@@ -103,11 +105,12 @@ public class JdbcCrawlerDAO implements CrawlerDAO {
         return links;
     }
 
-    public void insertNewsIntoDatabase(News news) throws SQLException {
+    @Override
+    public void insertNewsIntoDatabase(String url, String title, String content) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement("insert into News(url, title, content) values (?, ?, ?);")) {
-            statement.setString(1, news.getUrl());
-            statement.setString(2, news.getTitle());
-            statement.setString(3, news.getContent());
+            statement.setString(1, url);
+            statement.setString(2, title);
+            statement.setString(3, content);
             statement.executeUpdate();
         }
     }

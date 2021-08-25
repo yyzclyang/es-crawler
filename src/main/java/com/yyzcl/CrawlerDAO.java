@@ -7,5 +7,5 @@ public interface CrawlerDAO {
 
     void saveUrlIntoDatabase(String url) throws SQLException;
 
-    void insertNewsIntoDatabase(News news) throws SQLException;
+    void insertNewsIntoDatabase(String url, String title, String content) throws SQLException;
 }

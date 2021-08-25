@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Crawler {
-    private final CrawlerDAO dao = new JdbcCrawlerDAO();
+    private CrawlerDAO dao = new MyBatisCrawlerDAO();
 
     public Crawler() {
     }
@@ -62,7 +62,7 @@ public class Crawler {
             for (Element articleTag : articleTags) {
                 String title = articleTag.selectFirst("h1").text();
                 String content = articleTag.select("p").stream().map(Element::text).collect(Collectors.joining("\n"));
-                dao.insertNewsIntoDatabase(new News(url, title, content));
+                dao.insertNewsIntoDatabase(url, title, content);
                 System.out.println(title);
             }
         }
