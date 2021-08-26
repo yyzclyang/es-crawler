@@ -16,12 +16,14 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Crawler {
-    private CrawlerDAO dao = new MyBatisCrawlerDAO();
+public class Crawler extends Thread {
+    private final CrawlerDAO dao;
 
-    public Crawler() {
+    public Crawler(CrawlerDAO dao) {
+        this.dao = dao;
     }
 
+    @Override
     public void run() {
         try {
             String url;

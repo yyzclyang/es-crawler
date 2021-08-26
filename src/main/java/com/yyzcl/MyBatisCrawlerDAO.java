@@ -10,7 +10,7 @@ import java.io.InputStream;
 import java.sql.SQLException;
 
 public class MyBatisCrawlerDAO implements CrawlerDAO {
-    private SqlSessionFactory sqlSessionFactory;
+    private final SqlSessionFactory sqlSessionFactory;
 
     public MyBatisCrawlerDAO() {
         try {
@@ -23,7 +23,7 @@ public class MyBatisCrawlerDAO implements CrawlerDAO {
     }
 
     @Override
-    public String getNextUrlThenSwitchStatus() throws SQLException {
+    public synchronized String getNextUrlThenSwitchStatus() throws SQLException {
         try (SqlSession session = sqlSessionFactory.openSession(true)) {
             String url = session.selectOne("com.yyzcl.CrawlerMapper.getNextUrl");
             if (url != null) {
