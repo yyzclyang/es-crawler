@@ -5,7 +5,7 @@
 <mapper namespace="com.yyzcl.CrawlerMapper">
   <select id="getNextUrl" resultType="String">
     select url
-    from Links
+    from LINKS
     where status = 0
     limit 1;
   </select>
@@ -22,15 +22,15 @@
   </update>
   <select id="countUrl" parameterType="String" resultType="int">
     select count(url)
-    from Links
+    from LINKS
     where url = #{url}
   </select>
   <insert id="insertLink" parameterType="com.yyzcl.Link">
-    insert into Links(url)
+    insert into LINKS(url)
     values (#{url});
   </insert>
   <insert id="insertNews" parameterType="com.yyzcl.News">
-    insert into News(url, title, content)
+    insert into NEWS(url, title, content)
     values (#{url}, #{title}, #{content});
   </insert>
 </mapper>

@@ -1,18 +1,18 @@
-create table Links
+create table LINKS
 (
     id         bigint primary key auto_increment,
-    url        varchar(4096) not null unique,
+    url        varchar(768) not null unique,
     status     tinyint       not null default 0,
     CREATED_AT timestamp              default now(),
     UPDATED_AT timestamp              default now()
-);
+) DEFAULT CHARSET = utf8mb4;
 
-create table News
+create table NEWS
 (
     id         bigint primary key auto_increment,
     title      text,
     content    text,
-    url        varchar(4096),
+    url        varchar(768),
     CREATED_AT timestamp default now(),
     UPDATED_AT timestamp default now()
-);
+) DEFAULT CHARSET = utf8mb4;

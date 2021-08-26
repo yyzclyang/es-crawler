@@ -38,7 +38,7 @@ public class JdbcCrawlerDAO implements CrawlerDAO {
     }
 
     private String getNextUrl() throws SQLException {
-        try (PreparedStatement statement = connection.prepareStatement("select url from Links where status = 0 limit 1;"); ResultSet resultSet = statement.executeQuery()) {
+        try (PreparedStatement statement = connection.prepareStatement("select url from LINKS where status = 0 limit 1;"); ResultSet resultSet = statement.executeQuery()) {
             if (resultSet.next()) {
                 return resultSet.getString(1);
             }
@@ -71,14 +71,14 @@ public class JdbcCrawlerDAO implements CrawlerDAO {
         if (isExistInDatabase(url)) {
             return;
         }
-        try (PreparedStatement statement = connection.prepareStatement("insert into Links(url) values (?);")) {
+        try (PreparedStatement statement = connection.prepareStatement("insert into LINKS(url) values (?);")) {
             statement.setString(1, url);
             statement.executeUpdate();
         }
     }
 
     private List<String> getUrlsFromDatabase(String url) throws SQLException {
-        try (PreparedStatement statement = connection.prepareStatement("select id, url, status from Links where url = ?;")) {
+        try (PreparedStatement statement = connection.prepareStatement("select id, url, status from LINKS where url = ?;")) {
             statement.setString(1, url);
             return getUrlsFromDatabase(statement);
         }
@@ -107,7 +107,7 @@ public class JdbcCrawlerDAO implements CrawlerDAO {
 
     @Override
     public void insertNewsIntoDatabase(String url, String title, String content) throws SQLException {
-        try (PreparedStatement statement = connection.prepareStatement("insert into News(url, title, content) values (?, ?, ?);")) {
+        try (PreparedStatement statement = connection.prepareStatement("insert into NEWS(url, title, content) values (?, ?, ?);")) {
             statement.setString(1, url);
             statement.setString(2, title);
             statement.setString(3, content);

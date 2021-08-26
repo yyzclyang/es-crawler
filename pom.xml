@@ -81,6 +81,11 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>8.0.25</version>
+    </dependency>
+    <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>annotations</artifactId>
       <version>3.0.1</version>
@@ -154,7 +159,7 @@
         <artifactId>flyway-maven-plugin</artifactId>
         <version>7.14.0</version>
         <configuration>
-          <url>jdbc:h2:file:./tmp/news-db</url>
+          <url>jdbc:mysql://localhost:3306/crawler_news?characterEncoding=utf-8</url>
           <user>root</user>
           <password>123456</password>
         </configuration>
