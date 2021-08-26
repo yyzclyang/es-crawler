@@ -20,7 +20,7 @@ public class Crawler extends Thread {
     private final CrawlerDAO dao;
 
     public Crawler(CrawlerDAO dao) {
-        this.dao = dao;
+        this.dao = dao != null ? dao : new MyBatisCrawlerDAO();
     }
 
     @Override
