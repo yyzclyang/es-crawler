@@ -17,8 +17,8 @@
       </dataSource>
     </environment>
   </environments>
-
   <mappers>
     <mapper resource="db/mybatis/CrawlerMapper.xml" />
+    <mapper resource="db/mybatis/MockMapper.xml" />
   </mappers>
 </configuration>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yyzcl.MockMapper">
+  <select id="selectNews" resultType="com.yyzcl.News">
+    select id, title, content, url, created_at, updated_at
+    from NEWS
+  </select>
+  <insert id="insertNews" parameterType="com.yyzcl.News">
+    insert into NEWS(URL, TITLE, CONTENT, CREATED_AT, UPDATED_AT)
+    values (#{url}, #{title}, #{content}, #{createdAt}, #{updatedAt});
+  </insert>
+</mapper>
