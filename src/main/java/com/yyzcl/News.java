@@ -1,15 +1,31 @@
 package com.yyzcl;
 
+import java.time.Instant;
+
 public class News {
     private long id;
     private String url;
     private String title;
     private String content;
+    private Instant createdAt;
+    private Instant updatedAt;
+
+    public News() {
+    }
 
     public News(String url, String title, String content) {
         this.url = url;
         this.title = title;
         this.content = content;
+    }
+
+    public News(News o) {
+        this.id = o.id;
+        this.url = o.url;
+        this.title = o.title;
+        this.content = o.content;
+        this.createdAt = o.createdAt;
+        this.updatedAt = o.updatedAt;
     }
 
     public long getId() {
@@ -42,5 +58,21 @@ public class News {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }
